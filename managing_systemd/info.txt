@@ -1,0 +1,1 @@
+- Configure the httpd service such tat while loading it, it will also load the vsftpd service

@@ -1,0 +1,6 @@
+#Centos 7
+
+#Config /etc/pam.d/su
+auth [user_unknown=ignore success=ok ignore=ignore default=bad] pam_securetty.so
+
+#Delete line tty4 from /etc/securetty

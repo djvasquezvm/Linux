@@ -1,0 +1,4 @@
+- Request a list of currently loaded Linux Kernel modules
+- Load the module for vfat support; does it have any dependencies
+- Unload this module again
+- Make sure your system can be used to forward IP packets

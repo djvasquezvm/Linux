@@ -1,0 +1,45 @@
+#Centos 7
+
+#install quota package
+yum install quota -y
+
+#Install gdisk
+yum install gdisk -y
+
+#Check your disks
+lsblk
+
+#Create a partition (Hex code = 8300)
+gdisk /dev/sdb
+
+#Inform the OS of partition table changes
+partprobe
+
+#Check the new partition
+lsblk
+
+#format partition
+mkfs.xfs /dev/sdb1
+
+#move home directory to /mnt
+mv /home/daniel/ /mnt/
+
+#edit fstab
+echo "/dev/sdb1 /home xfs uquota,gquota 0 0" >> /etc/fstab
+
+#mount partition
+mount -a
+
+#check partition mounted
+findmnt
+
+#move home directory from /mnt to /home
+mv /mnt/daniel /home/
+
+#modify quota for user daniel
+xfs_quota -x -c 'limit bsoft=1G bhard=1G daniel' /home
+
+#demo
+su daniel
+cd
+dd if=/dev/zero of=prueba

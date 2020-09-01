@@ -1,0 +1,20 @@
+#Centos 7
+
+# Install postfix in case it's not already installed
+yum install postfix -y
+
+#Activate postfix
+systemctl enable --now postfix
+
+#Config postfix /etc/postfix/main.cf 
+inet_interfaces = all
+inet_interfaces = ipv4
+myorigin = $mydomain
+mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+mynetworks = 192.168.0.0/24, 127.0.0.0/8
+
+#Restart postfix
+systemctl restart postfix
+
+#From another pc make a simple test with your postfix server ip
+telnet 192.168.0.100 25

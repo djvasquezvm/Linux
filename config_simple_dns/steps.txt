@@ -1,0 +1,22 @@
+#Centos 7
+
+#Install unbound and bind-utils to use dig tool
+yum install unbound bind-utils -y
+
+#Config Unbound in /etc/unbound/unbound.conf
+interface: 0.0.0.0
+access-control: 192.168.0.0/24 allow
+forward-zone:
+       name: "."
+       forward-addr: 8.8.8.8
+domain-insecure: "yourdomain.com"
+
+#Activate service
+systemctl enable --now unbound
+
+#Modify your dns server through networkmanager or editing directly /etc/resolv.conf
+nameserver 127.0.0.1
+
+#Try that unbound is working typing this twice and check the query time
+dig google.com
+dig google.com

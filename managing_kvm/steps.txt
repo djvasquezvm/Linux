@@ -1,0 +1,20 @@
+#Centos 7
+
+#Install required software
+yum install qemu-kvm libvirt-client virt-viewer libvirt virt-install -y
+
+#Check you can virtualize
+grep vmx /proc/cpuinfo
+lsmod | grep kvm
+
+#Enable libvirtd
+systemctl enable --now libvirtd
+
+#Install a vm 1cpu 512 mb ram and 5gb disk
+virt-install --name=myvm --vcpus=1 --memory=512 --cdrom=/tmp/centos7.iso --disk size=5
+
+#Verify is running
+virsh list --all
+
+#Mark the virtual machine to be started automatically
+virsh autostart myvm

@@ -1,0 +1,8 @@
+#Centos 7
+
+#Edit /etc/default/grub (delete "rhgb quiet")
+GRUB_TIMEOUT=5
+GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap"
+
+#update grub
+grub2-mkconfig -o /boot/grub2/grub.cfg

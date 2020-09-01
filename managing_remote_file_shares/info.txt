@@ -1,0 +1,2 @@
+- On one server, configure samba to share a directory /samba. Also, configure NFS to share a directory /files
+- On the other server, mount these shares persistently

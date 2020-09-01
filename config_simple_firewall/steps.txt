@@ -1,0 +1,31 @@
+#Centos 7
+
+# disable firewalld
+systemctl disable --now firewalld
+
+# install iptables-services
+yum install iptables-services -y
+
+#Active iptables-services
+systemctl enable --now iptables
+
+#Policy Drop
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+#Incoming
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p icmp -j ACCEPT
+
+#Outgoing
+iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p icmp -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+
+#Save rules persistent
+iptables-save > /etc/sysconfig/iptables

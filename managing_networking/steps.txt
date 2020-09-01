@@ -1,0 +1,40 @@
+#Centos 7
+
+# Install systemd-networkd and systemd-resolved
+yum install systemd-networkd systemd-resolved -y
+
+# Disable Network Manager
+systemctl disable --now NetworkManager
+
+# Enable systemd-networkd and systemd-resolved
+systemctl enable --now systemd-networkd
+systemctl enable --now systemd-resolved
+
+# Delete current /etc/resolved.conf and replace it
+rm -f /etc/resolv.conf
+ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+# Create network directory in /etc/systemd
+mkdir -p /etc/systemd/network
+
+# Check the name of your network interface
+ip a
+
+# Create the systemd-networkd configuration. Replace enp0s3 with the name of your interface
+touch /etc/systemd/network/10-static-enp0s3.network
+
+#Edit the previous file
+[Match]
+Name=enp0s3
+
+[Network]
+Address=192.168.0.49
+Gateway=192.168.0.1
+DNS=8.8.8.8
+
+# Edit /etc/sysconfig/network-scripts/ifcfg-enp0s3
+ONBOOT="no"
+
+#Restart everything in one command
+systemctl daemon-reload && systemctl restart network && systemctl force-reload systemd-networkd && systemctl restart systemd-networkd
+

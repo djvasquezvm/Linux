@@ -1,0 +1,40 @@
+#Centos 7
+#Server2: Create keys
+ssh-keygen
+
+#Server2: Copy keys
+ssh-copy-id server1
+
+#Server2: Install rsync
+yum install rsync -y
+
+#Server2: Activate rsync
+systemctl enable --now rsyncd
+
+#Server2: Change atributes .ssh in order that it cant be modified when it syncs with server1
+cd
+chattr +i -R .ssh/
+
+#Server1: Create keys
+ssh-keygen
+
+#Server1: Copy keys
+ssh-copy-id server2
+
+#Server1: Install rsync
+yum install rsync -y
+
+#Server1: Activate rsync
+systemctl enable --now rsyncd
+
+#Server1: Create some empty files
+cd
+touch file{1..5}
+
+#Server1: demo rsync (the errors are because it can't sync the ssh directory which is fine)
+rsync -ac /root/ server2:/root
+
+#Server1: script in cron daily
+echo "rsync -ac /root/ server2:/root" >> /etc/cron.daily/script_ssh.sh
+chmod +x /etc/cron.daily/script_ssh.sh
+

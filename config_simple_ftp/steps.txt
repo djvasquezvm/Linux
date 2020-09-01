@@ -1,0 +1,23 @@
+#Centos 7
+
+#Install vsftpd and lftp
+yum install vsftpd lftp -y
+
+#Activate vsftpd
+systemctl enable --now vsftpd
+
+#Config vsftpd in /etc/vsftpd/vsftpd.conf
+anonymous_enable=YES
+
+#Restart vsftpd
+systemctl restart vsftpd
+
+#Create some empty files to test
+cd /var/ftp/pub/
+touch file{1..100}
+
+#From another pc (use your ftp server ip)
+lftp 192.168.0.100
+cd pub
+get file1
+exit

@@ -1,0 +1,2 @@
+- Set the GRUB boot timeout to 5 seconds
+- Ensure that none of the silent options is used to hide startup messages while booting your system

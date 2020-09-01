@@ -1,0 +1,5 @@
+- Use a new (virtual) hard disk to create the following:
+	- 1 swap partition with a 1 GB size
+	- 1 LUKS encrypted partition with a 1 GB size and an ext4 file system
+- Enable the service that allows for trimming of your SSD devices
+- Mount the partitions persistently

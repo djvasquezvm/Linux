@@ -1,0 +1,28 @@
+#Centos7
+
+#Install mariadb
+yum install mariadb-server -y
+
+#Activate mariadb
+systemctl enable --now mariadb
+
+#Config mariadb
+mysql_secure_installation
+
+#Access mariadb
+mysql -u root -p
+
+#Create database cities
+create database cities;
+
+#Create table
+use cities;
+create table prueba (city varchar (20),country varchar(20));
+
+#Insert data
+insert into prueba values ('poz','vzla');
+insert into prueba values ('ccs','vzla');
+insert into prueba values ('mty','mexico');
+
+#Request
+select * from prueba where country='vzla';

@@ -1,0 +1,19 @@
+#Centos 7
+
+#Config rsyslog in /etc/rsyslog.conf
+*.=info                                                 /var/log/info
+
+#Restart rsyslog
+systemctl restart rsyslog
+
+#Config logrotate in /etc/logrotate.conf 
+/var/log/info {
+    daily
+    rotate 7
+} 
+
+#Config systemd-journald in /etc/systemd/journald.conf 
+Storage=persistent
+
+#Restart systemd-journald
+systemctl force-reload systemd-journald

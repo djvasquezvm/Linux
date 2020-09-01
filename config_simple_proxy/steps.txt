@@ -1,0 +1,18 @@
+#Centos 7
+
+#Install squid
+yum install squid -y
+
+#Active squid
+systemctl enable --now squid
+
+#Config squid in /etc/squid/squid.conf
+acl sites_denied url_regex ^http://.*.oracle.com/.*$
+acl sites_denied url_regex ^https://.*.oracle.com/.*$
+acl sites_denied url_regex ^.*.oracle.com.*$
+http_access deny sites_denied
+
+#Restart squid
+systemctl restart squid
+
+#From another pc, try in firefox in network settings adding your squid server ip with port 3128 to http and https proxy

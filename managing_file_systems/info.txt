@@ -1,0 +1,3 @@
+- Create a new partition and format it with the ext3 file system
+- Set the label to "newfs"
+- Create a systemd mount and automount unit file to automatically mount this filesystem on the directory /data/newfs

@@ -1,0 +1,4 @@
+- Create a volume group with the name vgbooks
+- On your second hard disk, add a 1GB LVM volume with the name lvbooks, format it with the ext4 file system ad mount it persistently on /books
+- Shrink the LVM logical volume you've just created to a size of 800 MiB, without losing any data currently on it
+- Create an LVM snapshot of the lvbooks volume and temporarilt mount it on /mnt to verify its operation

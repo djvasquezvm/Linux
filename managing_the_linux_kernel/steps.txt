@@ -1,0 +1,26 @@
+#centos 7
+
+#list of currently kernel modules
+lsmod
+
+# load module vfat
+modprobe vfat
+
+#check dependencies
+lsmod | grep vfat
+
+#unload module vfat
+modprobe -r vfat
+
+#Pipe and write to /etc/sysctl.conf
+sysctl -a | grep -E 'ipv4.*forward\>' >> /etc/sysctl.conf
+
+#edit /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+
+#load /etc/sysctl.conf
+sysctl -p/etc/sysctl.conf
+
+#check sysctl
+sysctl -a | grep -E 'ipv4.*forward\>'
+

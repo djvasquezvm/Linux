@@ -1,0 +1,23 @@
+#Centos 7
+
+#Stop both services
+systemctl stop vsftpd
+systemctl stop httpd
+
+#Check they are stopped
+systemctl status vsftpd
+systemctl status httpd
+
+#Open httpd service
+systemctl edit httpd
+
+#Add this
+[Unit]
+Requires=vsftpd.service
+
+#Start httpd service
+systemctl start httpd
+
+#Check they are running
+systemctl status vsftpd
+systemctl status httpd

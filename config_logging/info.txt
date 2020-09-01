@@ -1,0 +1,3 @@
+- Configure rsyslog such that all messages with a priority of info are sent to /var/log/info
+- Configure logrotate so that this file is rotated every day and a backlog of one week is kept
+- Ensure that messages logged by systemd-journald are stored on disk persistently

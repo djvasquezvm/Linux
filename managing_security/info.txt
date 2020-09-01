@@ -1,0 +1,1 @@
+- Configure your system such tat /etc/securetty will apply to sessions that are opened with su, but consider /dev/tty4 as insecure, and block any attempts to log in as root from there

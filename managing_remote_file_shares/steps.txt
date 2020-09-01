@@ -1,0 +1,63 @@
+#Centos 7
+
+#Server1: install samba samba-client samba-common nfs-utils cifs-utils
+yum install samba samba-client samba-common nfs-utils cifs-utils -y
+
+#Server2: install samba samba-client samba-common nfs-utils cifs-utils
+yum install samba samba-client samba-common nfs-utils cifs-utils -y
+
+#Server1: create samba and files directory
+mkdir -p /samba
+mkdir -p /files
+
+#Server1: share /files directory
+echo "/files *(rw,no_root_squash)" >> /etc/exports
+
+#Server1: activate nfs service
+systemctl enable --now nfs
+
+#Server1: put some files on /files
+cd /files
+touch nfs{1..5}
+
+#Server1: permissions
+chmod 777 -R /files
+
+#Server1: Config samba in /etc/samba/smb.conf
+[samba]
+        comment = samba
+        path = /samba
+        valid users = daniel
+        browseable = yes
+        writable = yes
+
+#Server1: Activate samba service
+systemctl enable --now smb
+
+#Server1: create samba user
+smbpasswd -a daniel
+
+#Server1: Selinux samba
+semanage fcontext -a -t samba_var_t "/samba(/.*)?"
+restorecon -R -v /samba
+
+#Server1: put some files on /samba
+cd /samba
+touch samba{1..5}
+
+#Server1: permissions
+chmod 777 -R /samba
+
+#Server2: create samba and files directory
+mkdir -p /samba
+mkdir -p /files
+
+#Server2: edit fstab
+echo "server1:/files /files nfs _netdev 0 0" >> /etc/fstab
+echo "//server1/samba /samba cifs _netdev,username=daniel,password=1234 0 0" >> /etc/fstab
+
+#mount samba and nfs shares
+mount -a
+
+#check
+findmnt

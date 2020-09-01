@@ -1,0 +1,1 @@
+- Configure a Squid Proxy Server such tat access to all sites in the oracle.com domain is denied

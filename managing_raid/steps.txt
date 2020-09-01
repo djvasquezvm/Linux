@@ -1,0 +1,65 @@
+#Centos 7
+
+#Install mdadm
+yum install mdadm -y
+
+#Install gdisk
+yum install gdisk -y
+
+#Check your disks
+lsblk
+
+#Create partitions (Hex code = fd00)
+gdisk /dev/sdb
+gdisk /dev/sdc
+gdisk /dev/sdd
+gdisk /dev/sde
+
+#Inform the OS of partition table changes
+partprobe
+
+#Check the new partitions
+lsblk
+
+#create raid level 5 
+mdadm --create /dev/md0 --level 5 --raid-disks 3 --spare 1 /dev/sdb /dev/sdc /dev/sdd /dev/sde
+
+#check raid 5 device
+mdadm --detail /dev/md0
+
+#save raid config
+mdadm --detail --scan > /etc/mdadm.conf
+
+#format raid device
+mkfs.ext4 /dev/md0
+
+#edit fstab
+echo "/dev/md0 /raid ext4 defaults 0 0" >> /etc/fstab
+
+#create /raid
+mkdir -p /raid
+
+#mount raid
+mount -a
+
+#check raid mounted
+findmnt
+
+#make /dev/sdb fail
+mdadm --fail /dev/md0 /dev/sdb
+
+#check raid 5 device
+mdadm --detail /dev/md0
+
+#remove /dev/sdb
+mdadm --remove /dev/md0 /dev/sdb
+
+#check raid 5 device
+mdadm --detail /dev/md0
+
+#add /dev/sdb
+mdadm --add /dev/md0 /dev/sdb
+
+#check raid 5 device
+mdadm --detail /dev/md0
+

@@ -1,0 +1,2 @@
+- Install an Apache Web server, and configure it to use the directory /web as the DocumentRoot
+- Modify your Mandatory Access Control to allow this non-default configuration

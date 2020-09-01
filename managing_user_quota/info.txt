@@ -1,0 +1,1 @@
+- Configure Quota to limit the amount of data user daniel can write to her home directory to 1 GB

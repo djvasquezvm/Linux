@@ -1,0 +1,4 @@
+- Create a RAID 5 device, using 3 disk devices of 1 GB each. Also allocate an additional device as spare device
+- Put a file system on it and mount it on /raid
+- Fail one of the devices, monitor what is happening
+- Replace the failed device with the spare device

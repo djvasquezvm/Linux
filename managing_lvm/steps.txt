@@ -1,0 +1,72 @@
+#Centos 7
+
+#Install gdisk
+yum install gdisk -y
+
+#Check your disks
+lsblk
+
+#Create partitions (Hex code = 8e00)
+gdisk /dev/sdb
+gdisk /dev/sdc
+
+#Inform the OS of partition table changes
+partprobe
+
+#Check the new partitions
+lsblk
+
+#create physical volumes
+pvcreate /dev/sdb1
+pvcreate /dev/sdc1
+
+#check physical volumes
+pvs
+
+#create volume group
+vgcreate vgbooks /dev/sdb1 /dev/sdc1
+
+#check volume group
+vgs
+
+#create lvm
+lvcreate -n lvbooks -L 1G vgbooks
+
+#check lvm
+lvs
+
+#format lvm
+mkfs.ext4 /dev/vgbooks/lvbooks
+
+#create books directory
+mkdir -p /books
+
+#edit fstab
+echo "/dev/vgbooks/lvbooks /books ext4 defaults 0 0" >> /etc/fstab
+
+#mount lvm
+mount -a
+
+#check lvm mounted
+findmnt
+
+#create some data
+cd /books
+touch file{1..100}
+echo "example" > file1
+
+#shrink lvm
+cd
+lvreduce  -L -200M -r /dev/vgbooks/lvbooks
+lvreduce  -L -24M -r /dev/vgbooks/lvbooks
+
+#check lvm
+lvs
+
+#create snapshot and mount it in /tmp
+lvcreate -s -n lvbooks-snapshot -L 100M /dev/vgbooks/lvbooks
+mount /dev/vgbooks/lvbooks-snapshot /mnt
+cd /mnt
+ls
+
+

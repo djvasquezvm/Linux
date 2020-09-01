@@ -1,0 +1,39 @@
+#Centos 7
+
+#Install apache
+yum install httpd -y
+
+#Install selinux policy core python utilities
+yum install policycoreutils-python -y
+
+#Check selinux is enforcing. If its not, setenforce 1
+getenforce
+
+#Activate httpd
+systemctl enable --now httpd
+
+#Config httpd in /etc/httpd/conf/httpd.conf
+DocumentRoot "/web"
+<Directory "/web">
+    AllowOverride None
+    Require all granted
+</Directory>
+
+#Restart httpd
+systemctl restart httpd
+
+#Create directory web and simple index.html
+mkdir /web
+cd /web
+echo "welcome to my page" >> index.html
+
+#If you try now, you won't be able to see the index.html
+curl localhost
+
+#Configure Selinux (mandatory access control)
+semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
+restorecon -R -v /web
+
+#Now you'll be able to see the index.html
+curl localhost
+

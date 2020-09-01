@@ -1,0 +1,60 @@
+#Centos 7
+
+#Install gdisk
+yum install gdisk -y
+
+#Check your disks
+lsblk
+
+#Create a swap partition (Hex code = 8200, Last Sector = 1G)
+gdisk /dev/sdc
+
+#Create a linux partition (Hex code = 8300, Last Sector = 1G)
+gdisk /dev/sdd
+
+#Inform the OS of partition table changes
+partprobe
+
+#Check the new partitions
+lsblk
+
+#Format swap partition
+mkswap /dev/sdc1
+
+#Install luks
+yum install cryptsetup -y
+
+#Format linux partition with luks
+cryptsetup luksFormat /dev/sdd1
+
+#Open luks partition in /dev/mapper/secret
+cryptsetup luksOpen /dev/sdd1 secret
+
+#Format opened luks partition with ext4
+mkfs.ext4 /dev/mapper/secret 
+
+#create directory where luks partition will be
+mkdir /secret
+
+#mount partitions persistently
+echo "/dev/sdc1 swap swap defaults 0 0" >> /etc/fstab
+echo "/dev/mapper/secret /secret ext4 defaults 0 0" >> /etc/fstab
+
+#Open luks partition in /secret (after typing password)
+echo "secret /dev/sdd1" >> /etc/crypttab
+
+#mount partitions through fstab
+mount -a
+
+#activate swap
+swapon -a
+
+#Check everything
+lsblk
+
+#reboot and check everything
+reboot
+lsblk
+
+#Enable fstrim
+systemctl enable --now fstrim.timer

@@ -1,0 +1,76 @@
+#Centos 7
+
+#Install gdisk
+yum install gdisk -y
+
+#Check your disks
+lsblk
+
+#Create a partition (Hex code = 8300)
+gdisk /dev/sdb
+
+#Inform the OS of partition table changes
+partprobe
+
+#Check the new partition
+lsblk
+
+#Format with ext3 and label
+mkfs.ext3 -L "newfs" /dev/sdb1
+
+#Check the previous step
+blkid
+
+#Create /data/newfs
+mkdir -p /data/newfs
+
+#Copy systemd mount template
+cp /usr/lib/systemd/system/tmp.mount /etc/systemd/system
+
+#Change name
+mv tmp.mount data-newfs.mount
+
+#Edit data-newfs.mount
+[Unit]
+Description=data newfs
+DefaultDependencies=no
+Conflicts=umount.target
+Before=local-fs.target umount.target
+
+[Mount]
+What=/dev/sdb1
+Where=/data/newfs
+Type=ext3
+Options=defaults
+
+[Install]
+WantedBy=local-fs.target
+
+#Restart systemd
+systemctl daemon-reload
+
+#demo data-newfs.mount. You should see at the end /data/newfs mounted
+systemctl start data-newfs.mount
+findmnt
+systemctl stop data-newfs.mount
+
+#create systemd automount
+cp data-newfs.mount data-newfs.automount
+
+#edit data-newfs.automount
+[Automount]
+Where=/data/newfs
+
+#Restart systemd
+systemctl daemon-reload
+
+#Start data-newfs.automount
+systemctl enable --now data-newfs.automount
+
+#You should see at the end /data/newfs kind of mounted
+findmnt
+
+#If you go to the directory and see again you should see it fine. It's gonna be mounted when you go to the directory
+cd /data/newfs
+findmnt
+

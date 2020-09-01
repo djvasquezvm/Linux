@@ -1,0 +1,3 @@
+- Use iptables to build a firewall that allow the following:
+  - INCOMING: ssh, ping
+  - OUTGOING: ssh, dns, ping, http

@@ -1,0 +1,2 @@
+- On server1, create two directories: /srv/data and /srv/account. Export /srv/data as a read-write mount to anyone, and export /srv/account as a read only mount to servers on the local network only
+- Mount these shares persistently on server2, using /mnt/data and /mnt/account

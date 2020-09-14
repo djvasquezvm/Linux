@@ -1,0 +1,63 @@
+#Centos 7
+
+#Server1: Allow downloads from repositories
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server1: install nfs-utils
+yum install nfs-utils -y
+
+#Server1: enable nfs 
+systemctl enable --now nfs
+
+#Server1: check nfs is running correctly
+showmount -e localhost
+
+#Server1: Create directories and permissions
+mkdir -p /srv/data /srv/account
+chmod 777 /srv/data
+chmod 777 /srv/account
+
+#Server1: export directories
+echo "/srv/data *(rw)" >> /etc/exports
+echo "/srv/account 192.168.0.0/24(ro)" >> /etc/exports
+
+#Server1: load directories to nfs
+exportfs -a
+
+#Server1: check directories are loaded to nfs
+showmount -e localhost
+
+#Server1: Allow incoming connections to nfs service
+iptables -A INPUT -p tcp --dport 2049 -j ACCEPT
+iptables -A INPUT -p udp --dport 2049 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server2: Allow downloads from repositories
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server2: install nfs-utils
+yum install nfs-utils -y
+
+#Server2: Create directories
+mkdir -p /mnt/data /mnt/account
+
+#Server2: Allow outgoing connections to nfs service
+iptables -A OUTPUT -p tcp --dport 2049 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 2049 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server2: mount persistently
+echo "192.168.0.15:/srv/data /mnt/data nfs _netdev 0 0" >> /etc/fstab
+echo "192.168.0.15:/srv/account /mnt/account nfs _netdev 0 0" >> /etc/fstab
+mount -a
+
+#Server2: check
+findmnt

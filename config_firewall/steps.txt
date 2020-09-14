@@ -1,0 +1,30 @@
+#Centos 7
+
+#Server1: Copy current config ipv4 forward from kernel
+sysctl -a | grep -E 'ipv4.*ip_forward\>' >> /etc/sysctl.conf
+
+#Server1: Edit /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+
+#Server1: update sysctl
+sysctl -p/etc/sysctl.conf
+
+#Server1: Check ipv4 forward kernel
+sysctl -a | grep -E 'ipv4.*ip_forward\>'
+
+#Server1: Prerouting forwarding
+iptables -A PREROUTING -t nat -p tcp --dport 1234 -j DNAT --to IP_server2:22
+
+#Server1: Masquerade
+iptables -t nat -A POSTROUTING -j MASQUERADE
+
+#Server1: Allow packets to server2 in forward
+iptables -A FORWARD -p tcp -d IP_server2 --dport 22 -j ACCEPT
+
+#Server1: Allow state messages
+iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+#Server1: Make sure packages are only rejected by drop policy and not by rules
+
+#Your PC: Make sure you are allowing outgoing packages with destination port 1234
+

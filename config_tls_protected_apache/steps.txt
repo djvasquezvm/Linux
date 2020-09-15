@@ -1,0 +1,132 @@
+#Centos 7
+
+#Allow downloads from repositories
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Install selinux policy core python utilities
+yum install policycoreutils-python -y
+
+#Check selinux is enforcing. If its not, setenforce 1
+getenforce
+
+#Install web server
+yum group install "Basic Web Server" -y
+
+#Enable httpd
+systemctl enable --now httpd
+
+#Edit /etc/hosts
+echo "IP secret.example.com" >> /etc/hosts
+
+#create directory secret
+mkdir -p /web/secret
+
+#Create index
+echo "welcome to secret website" >> /web/secret/index.html
+
+#Edit httpd in /etc/httpd/conf/httpd.conf
+<Directory "/web/secret">
+    AllowOverride None
+    Require all granted
+</Directory>
+
+#Copy file from /usr/share/doc/httpd-2.4.6/httpd-vhosts.conf to /etc/httpd/conf.d/
+cp /usr/share/doc/httpd-2.4.6/httpd-vhosts.conf /etc/httpd/conf.d/secret.example.conf
+
+#Only have this in /etc/httpd/conf.d/secret.example.conf
+<VirtualHost *:80>
+    ServerAdmin webmaster@secret.example.com
+    DocumentRoot "/web/secret"
+    ServerName secret.example.com
+    ServerAlias www.secret.example.com
+    ErrorLog "/var/log/httpd/secret.example.com-error_log"
+    CustomLog "/var/log/httpd/secret.example.com-access_log" common
+</VirtualHost>
+
+#restart httpd
+systemctl restart httpd
+
+#Configure Selinux
+semanage fcontext -a -t httpd_sys_content_t "/web/secret(/.*)?"
+restorecon -R -v /web/secret
+
+#Allow permissions for httpd
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#check website
+curl secret.example.com
+
+#Only hosts from the local network. Edit /etc/httpd/conf/httpd.conf
+<Directory "/web/secret">
+    AllowOverride None
+    <RequireAll>
+        Require ip 192.168.0
+    </RequireAll>
+</Directory>
+
+#restart httpd
+systemctl restart httpd
+
+#check website from other computers in the network
+curl secret.example.com
+
+#create password
+htpasswd -c /etc/httpd/htpasswd user
+
+#Copy httpd docs
+cp /usr/share/doc/httpd-2.4.6/httpd-dav.conf /etc/httpd/conf.d/web-secret-auth.conf
+
+#edit /etc/httpd/conf.d/web-secret-auth.conf
+<Directory /web/secret >
+    AuthType Basic
+    AuthName "Secure web"
+    AuthUserFile /etc/httpd/htpasswd
+    Require valid-user
+</Directory>
+
+#restart httpd
+systemctl restart httpd
+
+#generate key, size of key = 2048, dont encrypt private key
+genkey secret.example.com
+
+#speed up process
+systemctl start rngd
+
+#once the key is generated, stop rngd
+systemctl stop rngd
+
+#copy ssl.conf
+cp /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/web-secret-ssl.conf
+
+#delete listen 443 from ssl.conf. This line can't be twice
+sed -i -e '/Listen 443 https/d' /etc/httpd/conf.d/ssl.conf
+
+#Edit /etc/httpd/conf.d/web-secret-ssl.conf
+<VirtualHost *:443>
+DocumentRoot "/web/secret"
+ServerName www.secret.example.com:443
+SSLCertificateFile /etc/pki/tls/certs/secret.example.com.crt
+SSLCertificateKeyFile /etc/pki/tls/private/secret.example.com.key
+
+#restart httpd
+systemctl restart httpd
+
+#Redirect port 80 to 443 in /etc/httpd/conf.d/secret.example.conf
+<VirtualHost *:80>
+    ServerName secret.example.com
+    Redirect "/" "https://www.secret.example.com/"
+</VirtualHost>
+
+#restart httpd
+systemctl restart httpd
+
+#check website using firefox
+http://secret.example.com
+

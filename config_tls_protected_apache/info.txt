@@ -1,0 +1,6 @@
+#Centos7
+
+- Create a Virtual host secret.example.com, with the document root in /web/secret. In this document root, create a index.html file with the contents "welcome to secret website". Make sure this website meets maximum security requirements. 
+- The website is only accesible through https only
+- Only hosts from the local network are allowed access
+- User authentication is mandatory, and all existing Apache users are allowed to authenticate

@@ -1,0 +1,3 @@
+- On Server1, configure a Samba server that shares access to /srv/lab directory. Only users who are a member of the group users can access to the share, and only users linda and anna can write files to the share.
+- Make sure that this share is accessible through the firewall and with SELinux in enforcing mode
+- Configure server2 as a client, where this share will be mounted automatically through /etc/fstab

@@ -1,0 +1,30 @@
+#Centos 7
+
+#Allow downloads from repositories
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Install docker
+yum install docker -y
+
+#Active docker
+systemctl enable --now docker
+
+#check docker
+systemctl status docker
+docker ps
+
+#Run ubuntu container in the background
+docker run -it -d ubuntu &
+
+#check container is running and its id
+docker ps
+
+#enter into container
+docker exec -it ID bash
+
+#check os
+cat /etc/os-release 

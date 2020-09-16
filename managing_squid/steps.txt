@@ -1,0 +1,38 @@
+#Centos 7
+
+#Server1: Allow downloads from repositories
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server1: Install squid
+yum install squid -y
+
+#Active squid
+systemctl enable --now squid
+
+#Config squid in /etc/squid/squid.conf
+acl localnet src 192.168.0.0/16 #local network
+acl working_hours time MTWHF 7:00-21:00
+http_access allow localnet
+http_access deny !working_hours
+http_port 8080
+
+#Server1: Restart squid
+systemctl restart squid
+
+#Server1: Allow traffic to squid
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Configure Selinux
+semanage port -m -t squid_port_t -p tcp 8080
+
+#Server1: Restart squid
+systemctl restart squid
+
+#From another pc, try in firefox in network settings adding your squid server ip with port 8080 to http and https proxy
+
+

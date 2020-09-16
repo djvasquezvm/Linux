@@ -1,0 +1,2 @@
+- Set up server1 to host containers. Next, download an Ubuntu container
+- Start your container and use cat /etc/os-info to verify that indeed you are in the container shell and not on the docker host shell

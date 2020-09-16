@@ -1,0 +1,79 @@
+#Centos7
+
+#Server1: Allow downloads from repositories
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server1: Install selinux policy core python utilities
+yum install policycoreutils-python -y
+
+#Server1: Check selinux is enforcing. If its not, setenforce 1
+getenforce
+
+#Server1: install samba
+yum install samba -y
+
+#Server1: Activate samba service
+systemctl enable --now smb
+
+#Server1: Create directory and permissions
+mkdir -p /srv/lab
+chmod 777 /srv/lab
+
+#Server1: Create users linda and anna
+groupadd users
+useradd linda
+useradd anna
+usermod -aG users linda
+usermod -aG users anna
+
+#Server1: Create samba passwords
+smbpasswd -a linda
+smbpasswd -a anna
+
+#Add to /etc/samba/smb.conf
+[lab]
+        comment = comment
+        path = /srv/lab
+        valid users = @users
+        read only = No
+        browseable = Yes
+        write list = linda anna root
+
+#Server1: Restart samba service
+systemctl restart smb
+
+#Server1: Check samba service
+systemctl status smb
+
+#Server1: Open samba port
+iptables -A INPUT -p tcp --dport 445 -j ACCEPT
+iptables -A INPUT -p tcp --dport 139 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server1: Configure Selinux
+semanage fcontext -a -t samba_share_t "/srv/lab(/.*)?"
+restorecon -R -v /srv/lab
+
+#Server2: Allow downloads from repositories
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables-save > /etc/sysconfig/iptables
+
+#Server2: install samba client
+yum install samba-client cifs-utils -y
+
+#Server2: Create directory
+mkdir -p /srv/lab
+
+#Server2: Mount directories
+echo "//IP/lab /srv/lab cifs _netdev,username=linda,password=1234 0 0 " >> /etc/fstab
+mount -a
+
+#Server2: check directories mounted
+findmnt

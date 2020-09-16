@@ -1,0 +1,5 @@
+- On server1, configure squid
+- Have it listen on port 8080
+- Deny access outside of working hours
+- Working hours are set as Mon-Fri 07:00-21:00
+- Allow access only from hosts on the local network

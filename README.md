@@ -1,4 +1,4 @@
-# Here you can see all linux configurations I have made in a test environment
+# Here you can see all linux configurations I have made in a test environment in Centos 7
 
 The linux configurations are:
 - ssh
